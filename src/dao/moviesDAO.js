@@ -58,7 +58,6 @@ export default class MoviesDAO {
 
     let cursor
     try {
-      // TODO Ticket: Projection
       // Find movies matching the "countries" list, but only return the title
       // and _id. Do not put a limit in your own implementation, the limit
       // here is only included to avoid sending 46000 documents down the
@@ -116,7 +115,6 @@ export default class MoviesDAO {
 
     const searchGenre = Array.isArray(genre) ? genre : genre.split(", ")
 
-    // TODO Ticket: Text and Subfield Search
     // Construct a query that will search for the chosen genre.
     const query = { genres: { $in: searchGenre } }
     const project = {}
@@ -196,8 +194,9 @@ export default class MoviesDAO {
     const queryPipeline = [
       matchStage,
       sortStage,
-      // TODO Ticket: Faceted Search
-      // Add the stages to queryPipeline in the correct order.
+      skipStage,
+      limitStage,
+      facetStage,
     ]
 
     try {
@@ -260,7 +259,6 @@ export default class MoviesDAO {
     Paging can be implemented by using the skip() and limit() cursor methods.
     */
 
-    // TODO Ticket: Paging
     // Use the cursor to only return the movies that belong on the current page
     const displayCursor = cursor.limit(moviesPerPage)
 
