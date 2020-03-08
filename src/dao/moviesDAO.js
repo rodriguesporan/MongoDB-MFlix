@@ -45,7 +45,7 @@ export default class MoviesDAO {
    */
   static async getMoviesByCountry(countries) {
     const query = { countries: { $in: countries } }
-    const project = { fields: { title: 1 } }
+    const project = { title: 1 }
     /**
     Ticket: Projection
 
@@ -63,7 +63,7 @@ export default class MoviesDAO {
       // and _id. Do not put a limit in your own implementation, the limit
       // here is only included to avoid sending 46000 documents down the
       // wire.
-      cursor = await movies.find(query, project)
+      cursor = await movies.find(query).project(project)
     } catch (e) {
       console.error(`Unable to issue find command, ${e}`)
       return []
