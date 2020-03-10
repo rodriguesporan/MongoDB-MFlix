@@ -282,62 +282,43 @@ export default class MoviesDAO {
    */
   static async getMovieByID(id) {
     try {
-      /**
-      Ticket: Get Comments
-
-      Given a movie ID, build an Aggregation Pipeline to retrieve the comments
-      matching that movie's ID.
-
-      The $match stage is already completed. You will need to add a $lookup
-      stage that searches the `comments` collection for the correct comments.
-      */
-
-      // Implement the required pipeline.
       const pipeline = [
         {
+          // find the current movie in the "movies" collection
           $match: {
             _id: ObjectId(id),
           },
         },
         {
-          $lookup: {
-            from: "comments",
-            localField: "_id",
-            foreignField: "movie_id",
-            as: "movie_comments",
-          },
-        },
-        {
+          // lookup comments from the "comments" collection
           $lookup: {
             from: "comments",
             let: { id: "$_id" },
             pipeline: [
               {
+                // only join comments with a match movie_id
                 $match: {
-                  $expr: { $eq: ["$movie_id", "$$id"] },
+                  $expr: {
+                    $eq: ["$movie_id", "$$id"],
+                  },
                 },
               },
               {
-                $sort: { date: -1 },
+                // sort by date in descending order
+                $sort: {
+                  date: -1,
+                },
               },
             ],
+            // call embedded field comments
             as: "comments",
           },
         },
       ]
       return await movies.aggregate(pipeline).next()
     } catch (e) {
-      /**
-      Ticket: Error Handling
-
-      Handle the error that occurs when an invalid ID is passed to this method.
-      When this specific error is thrown, the method should return `null`.
-      */
-
-      // TODO Ticket: Error Handling
-      // Catch the InvalidId error by string matching, and then handle it.
-      console.error(`Something went wrong in getMovieByID: ${e}`)
-      throw e
+      console.error(`Something went wrong in getMovieByID, ${e}`)
+      return null
     }
   }
 }
